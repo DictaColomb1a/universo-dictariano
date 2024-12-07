@@ -14,6 +14,7 @@
     "vite": "^5.4.10"
   },
   "dependencies": {
+    "planet-three": "file:",
     "three": "^0.128.0"
   }
 }
