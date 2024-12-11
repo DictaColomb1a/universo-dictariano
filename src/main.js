@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 // Crea la escena, cámara y renderizador
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -145,66 +146,62 @@ function animateUFO() {
     }
 }*/
 
+const loader2 = new OBJLoader();
+let ufo; // Variable para el platillo
 
+// Cargar el modelo del platillo
+loader2.load(
+    '/assets/platillo/UFO.obj', // Ruta del modelo
+    function (object) {
+        ufo = object;
 
+        // Posición inicial del platillo fuera de la cámara, en el lado derecho
+        ufo.position.set(30, 0, -50); // Posición inicial: a la derecha (X positivo) y lejos en Z
+        ufo.scale.set(0.5, 0.5, 0.5); // Ajustar el tamaño si es necesario
+        scene.add(ufo); // Añadir a la escena
+        console.log('Platillo cargado con éxito');
+    },
+    function (xhr) {
+        // Progreso de carga
+        console.log((xhr.loaded / xhr.total * 100) + '% cargado');
+    },
+    function (error) {
+        // Manejo de errores
+        console.error('Error cargando el platillo:', error);
+    }
+);
 
-// Crear el platillo volador
-const ufoGroup = new THREE.Group();
+// Variables para el movimiento y escala del platillo
+let ufoSpeedZ = 0.1;     // Velocidad en Z (hacia adelante)
+let ufoSpeedX = -0.05;   // Velocidad en X (hacia el centro)
+const startXUFO = 30;    // Posición inicial en X (derecha)
+const endXUFO = 0;       // Posición final en X (centro)
+const startZUFO = -50;   // Posición inicial en Z (lejos de la cámara)
+const endZUFO = 10;      // Posición final en Z (cerca de la cámara)
+let startScaleUFO = 0.2; // Escala inicial del platillo
+let endScaleUFO = 1.0;   // Escala final del platillo
 
-// **Disco Principal** (más pequeño)
-const ufoDiskGeometry = new THREE.CylinderGeometry(0.5, 1, 0.1, 54); // Tamaño del disco
-const ufoDiskMaterial = new THREE.MeshStandardMaterial({
-    color: 0x444444, // Gris oscuro
-    metalness: 0.8,
-    roughness: 0.4,
-});
-const ufoDisk = new THREE.Mesh(ufoDiskGeometry, ufoDiskMaterial);
-ufoDisk.rotation.x = Math.PI / 2; // Orientación horizontal
-ufoGroup.add(ufoDisk);
-
-// **Cúpula Superior**
-const ufoDomeGeometry = new THREE.SphereGeometry(0.3, 32, 32, 0, Math.PI); // Media esfera
-const ufoDomeMaterial = new THREE.MeshStandardMaterial({
-    color: 0x555555, // Gris oscuro
-    metalness: 0.8,
-    roughness: 0.3,
-});
-const ufoDome = new THREE.Mesh(ufoDomeGeometry, ufoDomeMaterial);
-ufoDome.position.y = 0.2; // Ubicar sobre el disco
-ufoGroup.add(ufoDome);
-
-// **Luz Central Azul**
-const centerLightGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Esfera pequeña para la luz central
-const centerLightMaterial = new THREE.MeshBasicMaterial({ color: 0x00ccff }); // Luz azul
-const centerLight = new THREE.Mesh(centerLightGeometry, centerLightMaterial);
-ufoGroup.add(centerLight);
-
-// **Posición Inicial** del platillo (a la derecha en Z, desplazado en X)
-ufoGroup.position.set(10, 1, -50); // Empezar a la derecha y lejos de la cámara
-scene.add(ufoGroup);
-
-// Velocidad y parámetros de animación
-const ufoSpeed = 0.1; // Velocidad del movimiento
-const maxSize = 2.0;  // Escala máxima del platillo
-const minSize = 0.5;  // Escala mínima del platillo
-
-// Función de animación
+// Animación del platillo
 function animateUFO() {
-    // Mover el platillo hacia adelante en el eje Z
-    ufoGroup.position.z += ufoSpeed;
+    if (ufo) {
+        // Mover el platillo hacia adelante en el eje Z
+        ufo.position.z += ufoSpeedZ;
 
-    // Incrementar la escala a medida que se acerca
-    const scaleFactor = (50 - ufoGroup.position.z) / 50; // A medida que se acerca, escala más
-    ufoGroup.scale.set(scaleFactor * (maxSize - minSize) + minSize, scaleFactor * (maxSize - minSize) + minSize, scaleFactor * (maxSize - minSize) + minSize);
+        // Mover el platillo desde la derecha hacia el centro en el eje X
+        ufo.position.x += ufoSpeedX;
 
-    // Cuando el platillo llega a la cámara, reiniciar la posición
-    if (ufoGroup.position.z > 0) {
-        ufoGroup.position.z = -50; // Reiniciar a la posición inicial lejos
-        ufoGroup.scale.set(minSize, minSize, minSize); // Restablecer escala
+        // Interpolación para hacer que la escala crezca a medida que el platillo se acerca
+        let progressZ = (ufo.position.z - startZUFO) / (endZUFO - startZUFO);
+        let scale = startScaleUFO + (endScaleUFO - startScaleUFO) * progressZ;
+        ufo.scale.set(scale, scale, scale); // Ajustar la escala en todos los ejes
+
+        // Si el platillo pasa la posición final, reiniciar su posición y escala
+        if (ufo.position.z > endZUFO) {
+            ufo.position.set(startXUFO, 0, startZUFO); // Reiniciar posición (derecha y lejos)
+            ufo.scale.set(startScaleUFO, startScaleUFO, startScaleUFO); // Restablecer la escala
+        }
     }
 }
-
-
 
 
 
@@ -247,6 +244,7 @@ function animateParticles() {
         particle.material.opacity = Math.random() * 0.7 + 0.3;
     });
 }
+
 
 // Cargar el modelo 3D del meteorito
 const loader1 = new GLTFLoader();
