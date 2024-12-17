@@ -272,6 +272,7 @@ camera.position.z = 3;
 
 // Velocidades de movimiento
 let meteoriteSpeed = 0.1;  // Velocidad del meteorito
+let rotationSpeed = 0.05;  // Velocidad de rotación del meteorito
 
 // Rango del movimiento en el eje Z
 const startZ = -50;  // Posición inicial en Z (lejos de la cámara)
@@ -291,14 +292,18 @@ function animateMeteorite() {
         let scale = startScale + (endScale - startScale) * progress;
         meteorite.scale.set(scale, scale, scale);  // Ajustar la escala en todos los ejes
 
+        // Aplicar rotación al meteorito (como si fuera un balón lanzado)
+        meteorite.rotation.x += rotationSpeed; // Rotación alrededor del eje X
+        meteorite.rotation.y += rotationSpeed; // Rotación alrededor del eje Y
+
         // Si el meteorito pasa la posición final, reiniciar su posición y escala
         if (meteorite.position.z > endZ) {
             meteorite.position.z = startZ;
             meteorite.scale.set(startScale, startScale, startScale);  // Restablecer la escala
+            meteorite.rotation.set(0, 0, 0); // Restablecer la rotación
         }
     }
 }
-
 /*Crear la estrella fugaz
 const starGeometry = new THREE.SphereGeometry(0.04, 30, 30);
 const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
