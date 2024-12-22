@@ -371,15 +371,22 @@ function createRocket(position) {
 
     // Posicionar el cohete en el espacio
     rocketGroup.position.set(position.x, position.y, position.z);
+
+
+    // Agregar la URL como dato personalizado
+    rocketGroup.userData.url = position.url;
+
     scene.add(rocketGroup);
     rockets.push(rocketGroup);
 }
 
 // Crear 3 cohetes en posiciones diferentes
 // Crear cohetes en posiciones más cercanas (por delante del planeta)
-createRocket({ x: -1.5, y: -0.8, z: 5 });
-createRocket({ x: 0, y: -0.8, z: 5 });
-createRocket({ x: 1.5, y: -0.8, z: 5 });
+// Crear cohetes con identificadores únicos y URL específicas
+createRocket({ x: -1.5, y: -0.6, z: 5, url: '/ninos.html' });
+createRocket({ x: 0, y: -0.6, z: 5, url: '/jovenes.html' });
+createRocket({ x: 1.5, y: -0.6, z: 5, url: '/padres.html' });
+
 
 
 let scrollY = 0;
@@ -419,13 +426,16 @@ window.addEventListener('click', (event) => {
     const intersects = raycaster.intersectObjects(rockets, true);
 
     if (intersects.length > 0) {
-        const clickedRocket = intersects[0].object;
-        console.log('Cohete clicado:', clickedRocket);
+        const clickedRocket = intersects[0].object.parent; // El cohete completo está en el grupo
 
-        // Acción personalizada (redirigir, mover cámara, etc.)
-        camera.position.set(clickedRocket.position.x, clickedRocket.position.y, clickedRocket.position.z + 2);
+        // Verificar si tiene una URL asociada
+        if (clickedRocket.userData.url) {
+            console.log('Redirigiendo a:', clickedRocket.userData.url);
+            window.location.href = `${window.location.origin}${clickedRocket.userData.url}`;
+        }
     }
 });
+
 
 // Animación general
 function animate() {
