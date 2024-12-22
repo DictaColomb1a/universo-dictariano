@@ -1,0 +1,11 @@
+Model Information:
+* title:	Asteroide
+* source:	https://sketchfab.com/3d-models/asteroide-ab5f315b96c349e8ae97b9346ac2941c
+* author:	jaimerog (https://sketchfab.com/jaimerog)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Asteroide" (https://sketchfab.com/3d-models/asteroide-ab5f315b96c349e8ae97b9346ac2941c) by jaimerog (https://sketchfab.com/jaimerog) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
