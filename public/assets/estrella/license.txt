@@ -1,0 +1,11 @@
+Model Information:
+* title:	Estrella
+* source:	https://sketchfab.com/3d-models/estrella-9a18d443a9c44414aa59a77e93c48c71
+* author:	mitshaker (https://sketchfab.com/mitshaker)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Estrella" (https://sketchfab.com/3d-models/estrella-9a18d443a9c44414aa59a77e93c48c71) by mitshaker (https://sketchfab.com/mitshaker) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

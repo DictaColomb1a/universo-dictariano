@@ -39,113 +39,9 @@ scene.add(directionalLight);
 
 // Posición inicial de la cámara
 camera.position.z = 3;
+                                         //animaciones
 
-// Función de animación para rotar el planeta
-//function animate() {
-  //  requestAnimationFrame(animate);
-   // planet.rotation.y += 0.004;  // Rotación del planeta sobre su eje Y
-    //renderer.render(scene, camera);
-//}
-
-
-// Cargar el modelo del astronauta (usando GLTFLoader)
-/*const loader = new GLTFLoader();
-let astronaut;
-let mixer;  // Mezclador para animaciones (si el modelo tiene animaciones)
-
-// Cargar el modelo 3D del astronauta
-loader.load('/assets/astronaut/source/Astronaut.glb', function(gltf) {
-    astronaut = gltf.scene;
-    astronaut.scale.set(0.5, 0.5, 0.5); // Ajusta el tamaño del astronauta
-    astronaut.position.set(1, 0, 0);  // Posición inicial sobre la superficie del planeta
-    scene.add(astronaut);
-
-    // Si el modelo tiene animaciones
-    if (gltf.animations && gltf.animations.length) {
-        mixer = new THREE.AnimationMixer(astronaut);  // Crear el mezclador de animaciones
-        gltf.animations.forEach((clip) => {
-            mixer.clipAction(clip).play(); // Reproducir todas las animaciones del modelo
-        });
-    }
-});
-
-// Animación del astronauta (mover alrededor del planeta)
-let angle = 0; // Variable para animar el astronauta
-
-function animateAstronaut() {
-    if (astronaut) {
-        // Movimiento orbital alrededor del planeta
-        angle += 0.01; // Aumenta el ángulo para mover al astronauta
-        const radius = 1.2; // Radio para orbitar alrededor del planeta
-        const x = radius * Math.cos(angle); // Coordenada x
-        const z = radius * Math.sin(angle); // Coordenada z
-        const y = Math.sin(angle) * 0.5; // Altura para que el astronauta esté ligeramente sobre el planeta
-
-        // Actualiza la posición del astronauta
-        astronaut.position.set(x, y, z);
-
-        // Hace que el astronauta mire hacia el centro del planeta
-        astronaut.lookAt(0, 0, 0);
-    }
-}
-*/
-
-/*// Crear el platillo volador
-const ufoGroup = new THREE.Group();
-
-// **Disco Principal** (más pequeño)
-const ufoDiskGeometry = new THREE.CylinderGeometry(0.2, 0.4, 0.1, 60); // Tamaño del disco
-const ufoDiskMaterial = new THREE.MeshStandardMaterial({
-    color: 0x444444, // Gris oscuro
-    metalness: 0.8,
-    roughness: 0.4,
-});
-const ufoDisk = new THREE.Mesh(ufoDiskGeometry, ufoDiskMaterial);
-ufoDisk.rotation.x = Math.PI / 2; // Orientación horizontal
-ufoGroup.add(ufoDisk);
-
-// **Cúpula Superior**
-const ufoDomeGeometry = new THREE.SphereGeometry(0.1, 32, 32, 0, Math.PI); // Media esfera
-const ufoDomeMaterial = new THREE.MeshStandardMaterial({
-    color: 0x555555, // Gris oscuro
-    metalness: 0.8,
-    roughness: 0.3,
-});
-const ufoDome = new THREE.Mesh(ufoDomeGeometry, ufoDomeMaterial);
-ufoDome.position.y = 0.1; // Ubicar sobre el disco
-ufoGroup.add(ufoDome);
-
-// **Luz Central Azul**
-const centerLightGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Esfera pequeña para la luz central
-const centerLightMaterial = new THREE.MeshBasicMaterial({ color: 0x00ccff }); // Luz azul brillante
-const centerLight = new THREE.Mesh(centerLightGeometry, centerLightMaterial);
-centerLight.position.set(0, -0.02, 0); // Debajo del disco
-ufoGroup.add(centerLight);
-
-// **Rayo de Luz Azul**
-const rayGeometry = new THREE.CylinderGeometry(0.05, 0.4, 2, 32, 1, true); // Forma de cono invertido
-const rayMaterial = new THREE.MeshBasicMaterial({
-    color: 0x00ccff,
-    opacity: 0.2, // Semi-transparente
-    transparent: true,
-});
-const ray = new THREE.Mesh(rayGeometry, rayMaterial);
-ray.position.y = -1; // Posicionado debajo del disco
-ufoGroup.add(ray);
-
-// Configuración inicial del platillo
-ufoGroup.position.set(0, 1, -10); // Inicialmente en el fondo
-scene.add(ufoGroup);
-
-// **Animación del Platillo Volador (Movimiento Lineal)**
-function animateUFO() {
-    if (ufoGroup.position.z < 3) {
-        ufoGroup.position.z += 0.05; // Movimiento hacia adelante
-    } else {
-        ufoGroup.position.set(0, 1, -10); // Reiniciar posición
-    }
-}*/
-
+//Platillo   volador
 const loader2 = new OBJLoader();
 let ufo; // Variable para el platillo
 
@@ -245,6 +141,112 @@ function animateParticles() {
     });
 }
 
+// Carga del asteroide
+const loader3 = new GLTFLoader();
+let asteroide;
+
+loader3.load(
+  '/assets/asteroide/stoney_asteroids.glb', // Ruta del modelo GLB
+  function (gltf) {
+    asteroide = gltf.scene;
+
+    // Posición inicial del asteroide (debajo del planeta)
+    asteroide.position.set(0, -3, -50); // X=0, Y=-3 (debajo), Z=-50 (lejos)
+    asteroide.scale.set(1, 1, 1); // Escala inicial un poco más grande
+    scene.add(asteroide);
+    console.log('Asteroide cargado con éxito');
+  },
+  undefined,
+  function (error) {
+    console.error('Error cargando el asteroide: ', error);
+  }
+);
+
+// Función para animar el asteroide
+function animateAsteroide() {
+  if (asteroide) {
+    // Movimiento hacia adelante en el eje Z con velocidad lenta
+    asteroide.position.z += 0.05; // Velocidad reducida
+
+    // Rotación del asteroide en sus ejes
+    asteroide.rotation.x += 0.005;
+    asteroide.rotation.y += 0.005;
+
+    // Escalado dinámico para simular acercamiento
+    const progressZ = (asteroide.position.z + 50) / 60; // Progreso entre -50 y 10
+    const scale = 1 + (1.5 - 1) * progressZ; // Escala de 1 a 1.5
+    asteroide.scale.set(scale, scale, scale);
+
+    // Detectar colisión con el planeta
+    const distance = calculateDistance(asteroide, planet); // Calcula la distancia entre el asteroide y el planeta
+    const planetRadius = 1; // Radio del planeta
+
+    if (distance <= planetRadius + 0.1) { // Verifica si el asteroide choca con el planeta
+      console.log('¡Colisión detectada debajo del planeta!');
+
+      // Detener el movimiento del asteroide
+      asteroide.position.z -= 0.05;
+
+      // Opcional: añadir efectos como explosión o desaparecer el asteroide
+      scene.remove(asteroide); // Remover asteroide de la escena (opcional)
+      return;
+    }
+
+    // Si el asteroide pasa la posición final sin colisión, reiniciar su posición
+    if (asteroide.position.z > 10) {
+      asteroide.position.set(0, -3, -50); // Reinicia en la posición inicial debajo del planeta
+      asteroide.scale.set(1, 1, 1); // Reinicia con tamaño un poco más grande
+    }
+  }
+}
+
+// Función para calcular distancia entre dos objetos
+function calculateDistance(obj1, obj2) {
+  const dx = obj1.position.x - obj2.position.x;
+  const dy = obj1.position.y - obj2.position.y;
+  const dz = obj1.position.z - obj2.position.z;
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+// estrella
+//cargar el modelo 3D de la estrella 
+// Carga de la estrella
+const loader4 = new GLTFLoader();
+let estrella;
+
+loader4.load(
+  '/assets/estrella/estrella.glb', // Ruta del modelo GLB
+  function (gltf) {
+    estrella = gltf.scene;
+
+    // Posición inicial de la estrella (debajo del planeta)
+    estrella.position.set(0, -3, -50); // X=0, Y=-3 (debajo), Z=-50 (lejos)
+    scene.add(estrella);
+    console.log('Estrella cargada con éxito');
+  },
+  undefined,
+  function (error) {
+    console.error('Error cargando la estrella: ', error);
+  }
+);
+
+// Función para animar la estrella
+function animateEstrella() {
+  if (estrella) {
+    // Movimiento hacia adelante en el eje Z
+    estrella.position.z += 0.2;
+
+    // Rotación de la estrella en sus ejes
+    estrella.rotation.x += 0.02;
+    estrella.rotation.y += 0.03;
+
+    // Si la estrella pasa la posición final, reiniciar su posición
+    if (estrella.position.z > 10) {
+      estrella.position.set(0, -3, -50); // Reinicia en la posición inicial (debajo del planeta)
+    }
+  }
+}
+
+
 
 // Cargar el modelo 3D del meteorito
 const loader1 = new GLTFLoader();
@@ -304,44 +306,7 @@ function animateMeteorite() {
         }
     }
 }
-/*Crear la estrella fugaz
-const starGeometry = new THREE.SphereGeometry(0.04, 30, 30);
-const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const shootingStar = new THREE.Mesh(starGeometry, starMaterial);
-shootingStar.position.set(-9, -5, -9); // Posición inicial
-scene.add(shootingStar);
-
-// Crear el rastro de la estrella fugaz
-const trailGeometry = new THREE.BufferGeometry();
-const trailMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true });
-const trailVertices = new Float32Array(6); // Línea entre 2 puntos
-trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailVertices, 3));
-const starTrail = new THREE.Line(trailGeometry, trailMaterial);
-scene.add(starTrail);
-
-
-// Animación de la estrella fugaz
-function animateShootingStar() {
-    if (shootingStar.position.x < 5) {
-        shootingStar.position.x += 0.1; // Movimiento hacia la derecha
-        shootingStar.position.y -= 0.03; // Movimiento descendente
-        shootingStar.position.z += 0.05; // Movimiento hacia adelante
-
-        // Actualizar rastro
-        const positions = starTrail.geometry.attributes.position.array;
-        positions[0] = shootingStar.position.x;
-        positions[1] = shootingStar.position.y;
-        positions[2] = shootingStar.position.z;
-        positions[3] = shootingStar.position.x - 0.5;
-        positions[4] = shootingStar.position.y + 0.2;
-        positions[5] = shootingStar.position.z - 0.5;
-        starTrail.geometry.attributes.position.needsUpdate = true;
-    } else {
-        shootingStar.position.set(-5, 2, -5); // Reiniciar posición
-    }
-}
-
-*/
+//COHETES
 const rockets = [];
 
 function createRocket(position) {
@@ -453,8 +418,8 @@ function animate() {
 
 
       animateMeteorite();
-
-   
+      animateAsteroide();
+      animateEstrella();
 
       
     renderer.render(scene, camera);
@@ -473,3 +438,112 @@ window.addEventListener('resize', () => {
 // Iniciar la animación
 animate();
 
+
+
+
+
+// Función de animación para rotar el planeta
+//function animate() {
+  //  requestAnimationFrame(animate);
+   // planet.rotation.y += 0.004;  // Rotación del planeta sobre su eje Y
+    //renderer.render(scene, camera);
+//}
+
+
+// Cargar el modelo del astronauta (usando GLTFLoader)
+/*const loader = new GLTFLoader();
+let astronaut;
+let mixer;  // Mezclador para animaciones (si el modelo tiene animaciones)
+
+// Cargar el modelo 3D del astronauta
+loader.load('/assets/astronaut/source/Astronaut.glb', function(gltf) {
+    astronaut = gltf.scene;
+    astronaut.scale.set(0.5, 0.5, 0.5); // Ajusta el tamaño del astronauta
+    astronaut.position.set(1, 0, 0);  // Posición inicial sobre la superficie del planeta
+    scene.add(astronaut);
+
+    // Si el modelo tiene animaciones
+    if (gltf.animations && gltf.animations.length) {
+        mixer = new THREE.AnimationMixer(astronaut);  // Crear el mezclador de animaciones
+        gltf.animations.forEach((clip) => {
+            mixer.clipAction(clip).play(); // Reproducir todas las animaciones del modelo
+        });
+    }
+});
+
+// Animación del astronauta (mover alrededor del planeta)
+let angle = 0; // Variable para animar el astronauta
+
+function animateAstronaut() {
+    if (astronaut) {
+        // Movimiento orbital alrededor del planeta
+        angle += 0.01; // Aumenta el ángulo para mover al astronauta
+        const radius = 1.2; // Radio para orbitar alrededor del planeta
+        const x = radius * Math.cos(angle); // Coordenada x
+        const z = radius * Math.sin(angle); // Coordenada z
+        const y = Math.sin(angle) * 0.5; // Altura para que el astronauta esté ligeramente sobre el planeta
+
+        // Actualiza la posición del astronauta
+        astronaut.position.set(x, y, z);
+
+        // Hace que el astronauta mire hacia el centro del planeta
+        astronaut.lookAt(0, 0, 0);
+    }
+}
+*/
+
+/*// Crear el platillo volador
+const ufoGroup = new THREE.Group();
+
+// **Disco Principal** (más pequeño)
+const ufoDiskGeometry = new THREE.CylinderGeometry(0.2, 0.4, 0.1, 60); // Tamaño del disco
+const ufoDiskMaterial = new THREE.MeshStandardMaterial({
+    color: 0x444444, // Gris oscuro
+    metalness: 0.8,
+    roughness: 0.4,
+});
+const ufoDisk = new THREE.Mesh(ufoDiskGeometry, ufoDiskMaterial);
+ufoDisk.rotation.x = Math.PI / 2; // Orientación horizontal
+ufoGroup.add(ufoDisk);
+
+// **Cúpula Superior**
+const ufoDomeGeometry = new THREE.SphereGeometry(0.1, 32, 32, 0, Math.PI); // Media esfera
+const ufoDomeMaterial = new THREE.MeshStandardMaterial({
+    color: 0x555555, // Gris oscuro
+    metalness: 0.8,
+    roughness: 0.3,
+});
+const ufoDome = new THREE.Mesh(ufoDomeGeometry, ufoDomeMaterial);
+ufoDome.position.y = 0.1; // Ubicar sobre el disco
+ufoGroup.add(ufoDome);
+
+// **Luz Central Azul**
+const centerLightGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Esfera pequeña para la luz central
+const centerLightMaterial = new THREE.MeshBasicMaterial({ color: 0x00ccff }); // Luz azul brillante
+const centerLight = new THREE.Mesh(centerLightGeometry, centerLightMaterial);
+centerLight.position.set(0, -0.02, 0); // Debajo del disco
+ufoGroup.add(centerLight);
+
+// **Rayo de Luz Azul**
+const rayGeometry = new THREE.CylinderGeometry(0.05, 0.4, 2, 32, 1, true); // Forma de cono invertido
+const rayMaterial = new THREE.MeshBasicMaterial({
+    color: 0x00ccff,
+    opacity: 0.2, // Semi-transparente
+    transparent: true,
+});
+const ray = new THREE.Mesh(rayGeometry, rayMaterial);
+ray.position.y = -1; // Posicionado debajo del disco
+ufoGroup.add(ray);
+
+// Configuración inicial del platillo
+ufoGroup.position.set(0, 1, -10); // Inicialmente en el fondo
+scene.add(ufoGroup);
+
+// **Animación del Platillo Volador (Movimiento Lineal)**
+function animateUFO() {
+    if (ufoGroup.position.z < 3) {
+        ufoGroup.position.z += 0.05; // Movimiento hacia adelante
+    } else {
+        ufoGroup.position.set(0, 1, -10); // Reiniciar posición
+    }
+}*/
