@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  // Opciones de configuración según tus necesidades
+  plugins: [react()],
   server: {
-    port: 3000, // Puedes cambiar el puerto si lo deseas
+    port: 3000, // Cambia el puerto si es necesario
   },
-  // Otros ajustes como alias o plugins
+  resolve: {
+    alias: {
+      '@': '/src', // Alias para simplificar importaciones
+    },
+  },
+  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.glb'], // Incluye tipos de assets
 });
