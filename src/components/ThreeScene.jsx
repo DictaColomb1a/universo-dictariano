@@ -5,7 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 
-export default function ThreeScene() {
+export default function ThreeScene({ onLoad }) {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -48,7 +48,7 @@ export default function ThreeScene() {
         
         // Posición inicial de la cámara
         camera.position.z = 3;
-        
+
         // Función de animación para rotar el planeta
         //function animate() {
           //  requestAnimationFrame(animate);
@@ -347,24 +347,24 @@ export default function ThreeScene() {
         
         */
         const rockets = [];
-        
-        function createRocket(position, route) {
+
+        function createRocket(position, index) {
             const rocketGroup = new THREE.Group();
-        
-            // Cuerpo del cohete
+
+            // Geometría y material del cuerpo del cohete
             const bodyGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 32);
             const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             rocketGroup.add(body);
-        
+
             // Nariz del cohete
             const noseGeometry = new THREE.ConeGeometry(0.1, 0.3, 32);
             const noseMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00 });
             const nose = new THREE.Mesh(noseGeometry, noseMaterial);
             nose.position.y = 0.65;
             rocketGroup.add(nose);
-        
-            // Colas del cohete
+
+            // Aletas del cohete
             const finGeometry = new THREE.BoxGeometry(0.05, 0.2, 0.05);
             const finMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
             for (let i = 0; i < 3; i++) {
@@ -377,116 +377,185 @@ export default function ThreeScene() {
                 fin.rotation.y = (i * Math.PI * 2) / 3;
                 rocketGroup.add(fin);
             }
-        
-            // Posicionar el cohete en el espacio
-            rocketGroup.position.set(position.x, position.y, position.z);
 
-            // Asignar URL personalizada al cohete
+            // Ajustar posición de los cohetes según el dispositivo
+            const isMobile = window.innerWidth <= 712;
+            if (isMobile) {
+                const yOffset = 0.4; // Ajuste progresivo en Y
+                rocketGroup.position.set(
+                    0, // X fijo para móvil
+                    position.y - index * yOffset, // Ajuste progresivo en Y basado en el índice
+                    position.z + index * 1.5 // Z ajustado para espaciamiento
+                );
+            } else {
+                rocketGroup.position.set(position.x, position.y, position.z);
+            }
+
+
+            // Asociar URL y agregar al grupo
             rocketGroup.userData.url = position.url;
-
             scene.add(rocketGroup);
             rockets.push(rocketGroup);
         }
-        
-        // Crear 3 cohetes en posiciones diferentes
-        // Crear cohetes en posiciones más cercanas (por delante del planeta)
-        createRocket({ x: -1.5, y: -0.8, z: 5, url: '/ninos' });
-        createRocket({ x: 0, y: -0.8, z: 5, url: '/jovenes' });
-        createRocket({ x: 1.5, y: -0.8, z: 5, url: '/padres' });
-        
-        
+
+        // Crear cohetes con posiciones específicas
+        createRocket({ x: -1.5, y: -0.6, z: 5, url: '/ninos' }, 0);
+        createRocket({ x: 0, y: -0.6, z: 5, url: '/jovenes' }, 1);
+        createRocket({ x: 1.5, y: -0.6, z: 5, url: '/padres' }, 2);
+
+        // Actualizar visibilidad y posición en función del scroll
+        const maxScrollY = 2000;
+        const cameraStartZ = 3;
+        const cameraEndZ = 13;
+        const cameraStartY = 0;
+        const cameraEndY = -2;
+
         let scrollY = 0;
-        let maxScrollY = 2000; // Ajusta según la longitud de tu scroll
+        let isScrolling = false;
         
+        function updateOnScroll() {
+            // Interpolación para la posición de la cámara
+            const progress = Math.min(scrollY / maxScrollY, 1);
+            camera.position.z = cameraStartZ + progress * (cameraEndZ - cameraStartZ);
+            camera.position.y = cameraStartY + progress * (cameraEndY - cameraStartY);
+        
+            // Mostrar los cohetes progresivamente
+            const isMobile = window.innerWidth <= 712;
+            rockets.forEach((rocket, index) => {
+                if (isMobile) {
+                    const threshold = maxScrollY * (0.3 + index * 0.1); // Más escalonado en móvil
+                    rocket.visible = scrollY > threshold;
+                } else {
+                    const threshold = maxScrollY * 0.2; // Todos visibles al mismo tiempo
+                    rocket.visible = scrollY > threshold;
+                }
+            });
+        
+            // Marcar que el scrolling terminó
+            isScrolling = false;
+        }
+        
+
+        // Escuchar el evento de scroll// Variable para saber si ya se ha desplazado a la sección de las naves
+    let isInRocketSection = false;
+
+    // Función para ocultar el planeta y mostrar los cohetes
+    function handleScroll() {
+        const scrollY = window.scrollY;
+
+        // Verifica si el scroll ha llegado a la sección de las naves
+        if (scrollY > 500 && !isInRocketSection) {  // Ajusta el valor de scrollY según tu página
+            isInRocketSection = true;
+
+            // Inicia la desaparición del planeta
+            planet.material.transparent = true;
+            planet.material.opacity = 1;
+
+            const fadeOutPlanet = () => {
+                if (planet.material.opacity > 0) {
+                    planet.material.opacity -= 0.05;
+                    requestAnimationFrame(fadeOutPlanet);
+                } else {
+                    planet.visible = false;
+                }
+            };
+
+            fadeOutPlanet();
+        }
+
+        // Restaurar el planeta cuando el scroll vuelva a la parte superior (opcional)
+        if (scrollY < 500 && isInRocketSection) {
+            isInRocketSection = false;
+            planet.visible = true;
+            planet.material.opacity = 1;  // Restaurar la visibilidad
+        }
+    }
+    
         window.addEventListener('scroll', () => {
             scrollY = window.scrollY;
-        
-            // Interpolación para alejar la cámara según el scroll
-            const progress = scrollY / maxScrollY; // Rango [0, 1]
-            camera.position.z = 3 + progress * 10; // Desde 3 hasta 13
-            camera.position.y = progress * -2; // Desplazar hacia abajo
-        
-            // Opcional: Rotar o alejar el planeta
-            planet.rotation.y += progress * 0.01;
-        
-            // Mostrar los cohetes gradualmente
-            rockets.forEach((rocket, index) => {
-                rocket.visible = scrollY > maxScrollY * (0.3 + index * 0.1); // Aparecen progresivamente
-                rocket.visible = scrollY > appearThreshold; // Aparecen progresivamente
-        
-            });
-        });
-        
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        
-        window.addEventListener('click', (event) => {
-            // Convertir coordenadas del mouse a espacio normalizado
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        
-            // Configurar raycaster
-            raycaster.setFromCamera(mouse, camera);
-        
-            // Detectar intersecciones con los cohetes
-            const intersects = raycaster.intersectObjects(rockets, true);
-        
-            if (intersects.length > 0) {
-                const clickedRocket = intersects[0].object.parent; // El cohete completo está en el grupo
+            handleScroll();
 
-        
-                // Verificar si tiene una URL asociada
-                if (clickedRocket.userData.url) {
-                    console.log('Redirigiendo a:', clickedRocket.userData.url);
-                    // Navegar a la URL asociada
-                    window.location.href = `${window.location.origin}${clickedRocket.userData.url}`;
-                }
+            if (!isScrolling) {
+                isScrolling = true;
+                requestAnimationFrame(updateOnScroll);
             }
         });
         
+
+        // Manejar clics en los cohetes
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(rockets, true);
+            if (intersects.length > 0) {
+                const clickedRocket = intersects[0].object.parent;
+                if (clickedRocket.userData.url) {
+                    window.location.href = clickedRocket.userData.url;
+                }
+            }
+        });
+
         // Animación general
         function animate() {
             requestAnimationFrame(animate);
-        
-            // Rotación del planeta
             planet.rotation.y += 0.004;
-        
-            // Animar el platillo y la estrella fugaz
+
             animateUFO();
-            //animateShootingStar();
+
             animateParticles();
-            
-              // Animar el astronauta
-             //animateAstronaut();
-              // Actualizar animaciones del modelo (si tiene animaciones)
-              /*if (mixer) {
-                  mixer.update(0.01); // Actualiza las animaciones
-              }*/
-        
-        
-              animateMeteorite();
-        
-           
-        
-              
+            animateMeteorite();
             renderer.render(scene, camera);
         }
-        
-        
-        // Ajustar tamaño del renderizador
+
         window.addEventListener('resize', () => {
             const width = window.innerWidth;
             const height = window.innerHeight;
             renderer.setSize(width, height);
             camera.aspect = width / height;
-            camera.updateProjectionMatrix(); // Actualiza la matriz de proyección
+            camera.updateProjectionMatrix();
+        
+            // Recalcular posiciones de los cohetes
+            const isMobile = width <= 712; // Verificar si es móvil
+            rockets.forEach((rocket, index) => {
+                const yOffset = 0.4; // Ajuste progresivo en Y
+                if (isMobile) {
+                    rocket.position.set(
+                        0, // X fijo para móvil
+                        -0.6 - index * yOffset, // Ajuste progresivo en Y basado en el índice
+                        5 + index * 1.5 // Z ajustado para espaciamiento
+                    );
+                } else {
+                    const positions = [
+                        { x: -1.5, y: -0.6, z: 5 },
+                        { x: 0, y: -0.6, z: 5 },
+                        { x: 1.5, y: -0.6, z: 5 },
+                    ];
+                    const position = positions[index];
+                    rocket.position.set(position.x, position.y, position.z);
+                }
+            });
         });
         
+        // Llamamos a onLoad para indicar que Three.js ha cargado y la animación ha comenzado
+        if (onLoad) {
+            onLoad();  // Esto notificará a Home que Three.js está listo
+        }
+
         // Iniciar la animación
         animate();
+
+        // Limpiar el renderizado al desmontar el componente
+        return () => {
+            document.body.removeChild(renderer.domElement);
+        };
         
-        
-    }, [navigate]);
+    }, [navigate, onLoad]); // Dependencia de onLoad para asegurarnos de que funcione correctamente
 
     return null;
 }

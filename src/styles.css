@@ -1,13 +1,40 @@
     body {
         margin: 0;
         overflow: auto;
-        height: 200vh; /* Doble altura de la pantalla */
+        height: 200vh; /* Valor para PC */
     }
+
+    /* Estilos para tablet */
+    @media (max-width: 1245px) {
+        body {
+            height: 230vh;
+        }
+    }
+
+    /* Estilos para móvil */
+    @media (max-width: 712px) {
+        body {
+            height: 310vh;
+        }
+    }
+
+    /* Fondo Canvas */
     canvas {
         position: fixed;
         top: 0;
         left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0; /* Asegura que el canvas quede detrás del contenido */
     }
+
+    /* Contenedor de las secciones */
+    .sections-container {
+        position: relative;
+        z-index: 1; /* Superpone las secciones sobre el canvas */
+    }
+
+    /* Estilo de las secciones */
     .section {
         width: 100%;
         height: 100vh;
@@ -16,11 +43,35 @@
         justify-content: center;
         font-size: 2rem;
         color: white;
-        z-index: 1;
+        text-shadow: 1px 1px 5px black;
+        background: transparent; /* Deja el fondo transparente para que se vea el canvas */
     }
+
     .section:nth-child(odd) {
-        background: #1a1a1a;
+        background: rgba(0, 0, 0, 0.4); /* Fondo semitransparente */
     }
+
     .section:nth-child(even) {
-        background: #333;
+        background: rgba(51, 51, 51, 0.4); /* Fondo semitransparente */
     }
+
+    /* Título principal */
+    h1 {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 3rem;
+        color: white;
+        text-shadow: 2px 2px 10px black;
+        z-index: 2; /* Superpone el título */
+    }
+    .sections-container {
+        position: relative;
+        z-index: 1;
+        transition: opacity 1s ease-in-out;  /* Transición suave de opacidad */
+    }
+    
+    .sections-container.hidden {
+        opacity: 0;  /* Hace que las secciones desaparezcan suavemente */
+    }
+    
